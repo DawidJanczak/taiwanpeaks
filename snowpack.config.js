@@ -7,10 +7,12 @@ module.exports = {
     /* ... */
   },
   plugins: [
-    ['@snowpack/plugin-typescript']
+    '@snowpack/plugin-postcss',
+    '@snowpack/plugin-typescript'
   ],
   packageOptions: {
-    /* ... */
+    source: 'remote',
+    types: true
   },
   devOptions: {
     /* ... */
