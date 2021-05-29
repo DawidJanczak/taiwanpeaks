@@ -170,32 +170,34 @@ map.on('load', () => {
   })
 
   map.on('mousemove', 'top100', (e) => {
-    map.getCanvas().style.cursor = 'pointer';
+    map.getCanvas().style.cursor = 'pointer'
 
     if (e.features && e.features[0]) {
-      const feature = e.features[0];
-      const coordinates = (<GeoJSON.Point>feature.geometry).coordinates.slice() as [number, number];
-      const description = feature.properties?.description;
+      const feature = e.features[0]
+      const coordinates = (<GeoJSON.Point>feature.geometry).coordinates.slice() as [number, number]
+      const description = feature.properties?.description
 
       while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-        coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+        coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360
       }
 
-      popup.setLngLat(coordinates).setHTML(description).addTo(map);
+      popup.setLngLat(coordinates).setHTML(description).addTo(map)
     }
   })
 
   map.on('mouseleave', 'top100', () => {
-    map.getCanvas().style.cursor = '';
-    popup.remove();
+    map.getCanvas().style.cursor = ''
+    popup.remove()
   })
-})
 
-const listing = document.getElementById('top100-listing')
-if (listing) {
-  for (const feature of featuresRaw) {
-    const li = document.createElement('li')
-    li.append(feature[2])
-    listing.append(li)
+  const listing = document.getElementById('top100-listing')
+  if (listing) {
+    for (const feature of featuresRaw) {
+      const li = document.createElement('li')
+      li.append(feature[2])
+      li.onmouseover = () => popup.setLngLat([feature[0], feature[1]]).setHTML(feature[2]).addTo(map)
+      li.onmouseleave = () => popup.remove()
+      listing.append(li)
+    }
   }
-}
+})
