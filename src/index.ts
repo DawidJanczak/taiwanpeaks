@@ -144,6 +144,22 @@ const features : Array<GeoJSON.Feature> = featuresRaw.map(([lon, lat, desc]) =>
   })
 )
 
+const highlightClass = 'bg-blue-300'
+
+const setHighlight = (add : boolean) => (id : string) => {
+  const listing = document.getElementById(id)
+  if (listing) {
+    if (add) {
+      listing.classList.add(highlightClass)
+    } else {
+      listing.classList.remove(highlightClass)
+    }
+  }
+}
+
+const addHighlight = setHighlight(true)
+const removeHighlight = setHighlight(false)
+
 map.on('load', () => {
   map.addSource('top100', {
     type: 'geojson',
@@ -181,12 +197,18 @@ map.on('load', () => {
         coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360
       }
 
+      const existingElement = popup.getElement()
+      if (existingElement) {
+        removeHighlight(existingElement.innerText)
+      }
       popup.setLngLat(coordinates).setHTML(description).addTo(map)
+      addHighlight(description)
     }
   })
 
   map.on('mouseleave', 'top100', () => {
     map.getCanvas().style.cursor = ''
+    removeHighlight(popup.getElement().innerText)
     popup.remove()
   })
 
@@ -194,6 +216,8 @@ map.on('load', () => {
   if (listing) {
     for (const feature of featuresRaw) {
       const li = document.createElement('li')
+      li.classList.add(`hover:${highlightClass}`)
+      li.id = feature[2]
       li.append(feature[2])
       li.onmouseover = () => popup.setLngLat([feature[0], feature[1]]).setHTML(feature[2]).addTo(map)
       li.onmouseleave = () => popup.remove()
