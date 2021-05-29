@@ -23,8 +23,8 @@ import './index.css'
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiZ2F0d2FyZSIsImEiOiJja3Awczk2MXkwM2QyMnVxdndnNTZ6c3oxIn0.VQu5bTCFO05pSuYJzakQWQ'
 const map = new mapboxgl.Map({
-  bounds: [[124, 21.5], [117, 26]],
-  center: [120.965, 23.6],
+  bounds: [[121, 21.7], [120, 25.5]],
+  center: [120.5, 23.6],
   container: 'map',
   style: 'mapbox://styles/mapbox/outdoors-v11'
 })
