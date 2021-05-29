@@ -9,8 +9,12 @@
     <meta name="author" content="Dawid Janczak">
   </head>
 
-  <body class="h-screen">
+  <body class="flex h-screen">
     <script type="module" src="src/index.js"></script>
     <div id="map" class="m-5 h-5/6 w-1/2"></div>
+    <div id="listings" class="m-5 h-5/6 w-1/2">
+      <h1 class="text-xl">Top 100</h1>
+      <ol class="list-decimal list-inside" id="top100-listing"></ol>
+    </div>
   </body>
 </html>

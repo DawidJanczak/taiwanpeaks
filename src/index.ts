@@ -31,6 +31,7 @@ const map = new mapboxgl.Map({
 
 const featuresRaw : Array<[number, number, string]> = [
   [120.9572707, 23.4700025, '玉山'],
+  [121.2317647, 24.3834112, '雪山主峰'],
   [120.9651888, 23.4707259, '玉山東峰'],
   [120.9594719, 23.4875306, '玉山北峰'],
   [120.9337289, 23.4718712, '玉山西峰'],
@@ -99,3 +100,12 @@ map.on('load', () => {
     popup.remove();
   })
 })
+
+const listing = document.getElementById('top100-listing')
+if (listing) {
+  for (const feature of featuresRaw) {
+    const li = document.createElement('li')
+    li.append(feature[2])
+    listing.append(li)
+  }
+}
