@@ -29,23 +29,29 @@ const map = new mapboxgl.Map({
   style: 'mapbox://styles/mapbox/outdoors-v11'
 })
 
+const featuresRaw : Array<[number, number, string]> = [
+  [120.957, 23.47, 'Yushan'],
+  [120.965, 23.47, 'Yushan East Peak']
+]
+const features : Array<GeoJSON.Feature> = featuresRaw.map(([lon, lat, desc]) =>
+  ({
+    type: 'Feature',
+    properties: {
+      description: desc
+    },
+    geometry: {
+      type: 'Point',
+      coordinates: [lon, lat]
+    }
+  })
+)
+
 map.on('load', () => {
   map.addSource('top100', {
     type: 'geojson',
     data: {
       type: 'FeatureCollection',
-      features: [
-        {
-          type: 'Feature',
-          properties: {
-            description: 'Yushan'
-          },
-          geometry: {
-            type: 'Point',
-            coordinates: [120.957, 23.47]
-          }
-        }
-      ]
+      features: features
     }
   })
   map.addLayer({
@@ -65,13 +71,17 @@ map.on('load', () => {
     closeOnClick: false
   })
 
-  map.on('mouseenter', 'top100', (e) => {
+  map.on('mousemove', 'top100', (e) => {
     map.getCanvas().style.cursor = 'pointer';
 
     if (e.features && e.features[0]) {
       const feature = e.features[0];
-      const coordinates = (<GeoJSON.Point>feature.geometry).coordinates.slice() as mapboxgl.LngLatLike;
+      const coordinates = (<GeoJSON.Point>feature.geometry).coordinates.slice() as [number, number];
       const description = feature.properties?.description;
+
+      while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+        coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+      }
 
       popup.setLngLat(coordinates).setHTML(description).addTo(map);
     }
