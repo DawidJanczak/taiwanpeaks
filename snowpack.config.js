@@ -7,6 +7,7 @@ module.exports = {
     /* ... */
   },
   plugins: [
+    'snowpack-plugin-elm',
     '@snowpack/plugin-postcss',
     '@snowpack/plugin-typescript'
   ],

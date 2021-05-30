@@ -3,6 +3,7 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 import mapboxgl from 'mapbox-gl'
 import type GeoJSON from 'geojson'
 import './index.css'
+import { Elm } from './Main.elm'
 
 // const northWest = L.latLng(26, 117)
 // const southEast = L.latLng(21.5, 124)
@@ -143,6 +144,11 @@ const features : Array<GeoJSON.Feature> = featuresRaw.map(([lon, lat, desc]) =>
     }
   })
 )
+
+const elmContainer = document.getElementById('elm-container')
+if (elmContainer) {
+  Elm.Main.init({ node: elmContainer, flags: {}})
+}
 
 const highlightClass = 'bg-blue-300'
 
