@@ -12,9 +12,21 @@
   <body class="flex h-screen">
     <script type="module" src="src/index.js"></script>
     <div id="map" class="m-5 h-5/6 w-1/2"></div>
-    <div id="listings" class="m-5 h-5/6 w-1/2">
-      <h1 class="text-xl">Top 100</h1>
-      <ol class="list-decimal list-inside w-1/4 text-sm cursor-default h-full overflow-y-auto" id="top100-listing"></ol>
+    <div class="flex-col w-1/2 h-5/6">
+      <div class="flex m-5 text-center text-xl cursor-pointer">
+        <div id="top100-heading" class="w-1/4 bg-gray-200 p-2 m-2 rounded-t-lg">
+          Top 100
+        </div>
+        <div id="3000-heading" class="w-1/4 bg-gray-200 p-2 m-2 rounded-t-lg">
+          Peaks above 3000m
+        </div>
+        <div id="small-top100-heading" class="w-1/4 bg-gray-200 p-2 m-2 rounded-t-lg">
+          Small Top 100
+        </div>
+      </div>
+      <div class="h-full">
+        <ol class="list-decimal list-inside text-sm cursor-default h-full overflow-y-auto" id="top100-listing"></ol>
+      </div>
     </div>
   </body>
 </html>

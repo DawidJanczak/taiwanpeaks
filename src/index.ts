@@ -160,6 +160,7 @@ const setHighlight = (add : boolean) => (id : string) => {
 const addHighlight = setHighlight(true)
 const removeHighlight = setHighlight(false)
 
+map.addControl(new mapboxgl.NavigationControl());
 map.on('load', () => {
   map.addSource('top100', {
     type: 'geojson',
@@ -212,16 +213,23 @@ map.on('load', () => {
     popup.remove()
   })
 
-  const listing = document.getElementById('top100-listing')
-  if (listing) {
-    for (const feature of featuresRaw) {
-      const li = document.createElement('li')
-      li.classList.add(`hover:${highlightClass}`)
-      li.id = feature[2]
-      li.append(feature[2])
-      li.onmouseover = () => popup.setLngLat([feature[0], feature[1]]).setHTML(feature[2]).addTo(map)
-      li.onmouseleave = () => popup.remove()
-      listing.append(li)
+  const top100Heading = document.getElementById('top100-heading')
+  if (top100Heading) {
+    top100Heading.onclick = () => {
+      top100Heading.classList.remove('bg-gray-200')
+      top100Heading.classList.add('bg-blue-200')
+      const listing = document.getElementById('top100-listing')
+      if (listing) {
+        for (const feature of featuresRaw) {
+          const li = document.createElement('li')
+          li.classList.add(`hover:${highlightClass}`)
+          li.id = feature[2]
+          li.append(feature[2])
+          li.onmouseover = () => popup.setLngLat([feature[0], feature[1]]).setHTML(feature[2]).addTo(map)
+          li.onmouseleave = () => popup.remove()
+          listing.append(li)
+        }
+      }
     }
   }
 })
