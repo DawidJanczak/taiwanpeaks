@@ -160,6 +160,11 @@ const setHighlight = (add : boolean) => (id : string) => {
 const addHighlight = setHighlight(true)
 const removeHighlight = setHighlight(false)
 
+const popup = new mapboxgl.Popup({
+  closeButton: false,
+  closeOnClick: false
+})
+
 map.addControl(new mapboxgl.NavigationControl());
 map.on('load', () => {
   map.addSource('top100', {
@@ -179,11 +184,6 @@ map.on('load', () => {
       'circle-stroke-width': 2,
       'circle-stroke-color': '#ffffff'
     }
-  })
-
-  const popup = new mapboxgl.Popup({
-    closeButton: false,
-    closeOnClick: false
   })
 
   map.on('mousemove', 'top100', (e) => {
@@ -212,24 +212,39 @@ map.on('load', () => {
     removeHighlight(popup.getElement().innerText)
     popup.remove()
   })
+})
 
-  const top100Heading = document.getElementById('top100-heading')
-  if (top100Heading) {
-    top100Heading.onclick = () => {
-      top100Heading.classList.remove('bg-gray-200')
-      top100Heading.classList.add('bg-blue-200')
-      const listing = document.getElementById('top100-listing')
-      if (listing) {
-        for (const feature of featuresRaw) {
-          const li = document.createElement('li')
-          li.classList.add(`hover:${highlightClass}`)
-          li.id = feature[2]
-          li.append(feature[2])
-          li.onmouseover = () => popup.setLngLat([feature[0], feature[1]]).setHTML(feature[2]).addTo(map)
-          li.onmouseleave = () => popup.remove()
-          listing.append(li)
+
+
+const replaceClass = (arg : Element, from : string, to : string) => {
+  if (arg instanceof HTMLElement) {
+    arg.classList.remove(from)
+    arg.classList.add(to)
+  }
+}
+
+const headings = document.querySelectorAll('.js-listing')
+for (const tab of headings) {
+  if (tab instanceof HTMLElement) {
+    tab.onclick = () => {
+      headings.forEach((oldTab) => replaceClass(oldTab, 'bg-blue-200', 'bg-gray-200'))
+      replaceClass(tab, 'bg-gray-200', 'bg-blue-200')
+
+      const listingData = tab.dataset.listing
+      if (listingData) {
+        const listing = document.getElementById(`${listingData}-listing`)
+        if (listing) {
+          for (const feature of featuresRaw) {
+            const li = document.createElement('li')
+            li.classList.add(`hover:${highlightClass}`)
+            li.id = feature[2]
+            li.append(feature[2])
+            li.onmouseover = () => popup.setLngLat([feature[0], feature[1]]).setHTML(feature[2]).addTo(map)
+            li.onmouseleave = () => popup.remove()
+            listing.append(li)
+          }
         }
       }
     }
   }
-})
+}
