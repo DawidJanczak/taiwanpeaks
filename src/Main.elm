@@ -6,13 +6,15 @@ import Html
         ( Html
         , text
         )
+import Json.Decode as Dec
+import Json.Decode.Pipeline as Pipe
 
 
 
 -- Init
 
 
-main : Program Flags Model Msg
+main : Program Dec.Value Model Msg
 main =
     Browser.element
         { init = init
@@ -23,20 +25,51 @@ main =
 
 
 type alias Model =
-    {}
+    { flags : Flags
+    }
+
+
+type alias Peak =
+    { lat : Float
+    , lon : Float
+    , name : String
+    }
 
 
 type alias Flags =
-    {}
+    { top100 : List Peak
+    }
 
 
 type alias Msg =
     Never
 
 
-init : Flags -> ( Model, Cmd Msg )
-init _ =
-    ( {}, Cmd.none )
+init : Dec.Value -> ( Model, Cmd Msg )
+init encodedFlags =
+    case Dec.decodeValue flagsDecoder encodedFlags of
+        Ok flags ->
+            ( { flags = flags }, Cmd.none )
+
+        Err err ->
+            Dec.errorToString err |> Debug.todo
+
+
+
+-- Decoders
+
+
+peakDecoder : Dec.Decoder Peak
+peakDecoder =
+    Dec.succeed Peak
+        |> Pipe.required "latitude" Dec.float
+        |> Pipe.required "longitude" Dec.float
+        |> Pipe.required "name" Dec.string
+
+
+flagsDecoder : Dec.Decoder Flags
+flagsDecoder =
+    Dec.map Flags (Dec.list peakDecoder)
 
 
 

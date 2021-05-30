@@ -51,7 +51,7 @@ const features : Array<GeoJSON.Feature> = top100Json.peaks.map(({ longitude, lat
 
 const elmContainer = document.getElementById('elm-container')
 if (elmContainer) {
-  Elm.Main.init({ node: elmContainer, flags: {}})
+  Elm.Main.init({ node: elmContainer, flags: top100Json.peaks })
 }
 
 const highlightClass = 'bg-blue-300'
