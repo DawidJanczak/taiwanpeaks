@@ -1,27 +1,9 @@
-import 'leaflet/dist/leaflet.css'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import mapboxgl from 'mapbox-gl'
 import type GeoJSON from 'geojson'
 import './index.css'
 import { Elm } from './Main.elm'
 import top100Json from './top100.json'
-
-// const northWest = L.latLng(26, 117)
-// const southEast = L.latLng(21.5, 124)
-
-// const map = L.map(
-  // 'map',
-  // {
-    // center: L.latLng(23.6, 120.965),
-    // zoom: 8,
-    // maxBounds: L.latLngBounds(northWest, southEast),
-    // minZoom: 8,
-    // preferCanvas: true
-  // }
-// )
-// L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    // attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-// }).addTo(map)
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiZ2F0d2FyZSIsImEiOiJja3Awczk2MXkwM2QyMnVxdndnNTZ6c3oxIn0.VQu5bTCFO05pSuYJzakQWQ'
 const map = new mapboxgl.Map({
