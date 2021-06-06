@@ -1,13 +1,44 @@
-module Main exposing (main)
+port module Main exposing (main)
 
 import Browser
 import Html
     exposing
         ( Html
+        , div
+        , li
+        , ol
         , text
+        )
+import Html.Attributes
+    exposing
+        ( class
+        , classList
+        )
+import Html.Events
+    exposing
+        ( onMouseOut
+        , onMouseOver
         )
 import Json.Decode as Dec
 import Json.Decode.Pipeline as Pipe
+import Json.Encode as Enc
+import SelectList exposing (SelectList)
+
+
+
+-- Ports
+
+
+port hoverOver : Enc.Value -> Cmd msg
+
+
+port hoverOut : () -> Cmd msg
+
+
+port mapPopupHover : (String -> msg) -> Sub msg
+
+
+port mapPopupHoverOut : (() -> msg) -> Sub msg
 
 
 
@@ -20,12 +51,21 @@ main =
         { init = init
         , view = view
         , update = update
-        , subscriptions = \_ -> Sub.none
+        , subscriptions = subscriptions
         }
+
+
+subscriptions : Model -> Sub Msg
+subscriptions _ =
+    Sub.batch
+        [ mapPopupHover MapPopupHover
+        , mapPopupHoverOut MapPopupHoverOut
+        ]
 
 
 type alias Model =
     { flags : Flags
+    , mapPopupHover : Maybe String
     }
 
 
@@ -36,20 +76,32 @@ type alias Peak =
     }
 
 
-type alias Flags =
-    { top100 : List Peak
+type alias PeakListing =
+    { heading : String
+    , peaks : List Peak
     }
 
 
-type alias Msg =
-    Never
+type alias Flags =
+    SelectList PeakListing
+
+
+type Msg
+    = HoverOver Peak
+    | HoverOut
+    | MapPopupHover String
+    | MapPopupHoverOut ()
 
 
 init : Dec.Value -> ( Model, Cmd Msg )
 init encodedFlags =
     case Dec.decodeValue flagsDecoder encodedFlags of
         Ok flags ->
-            ( { flags = flags }, Cmd.none )
+            ( { flags = flags
+              , mapPopupHover = Nothing
+              }
+            , Cmd.none
+            )
 
         Err err ->
             Dec.errorToString err |> Debug.todo
@@ -67,9 +119,26 @@ peakDecoder =
         |> Pipe.required "name" Dec.string
 
 
+peakListingDecoder : Dec.Decoder PeakListing
+peakListingDecoder =
+    Dec.succeed PeakListing
+        |> Pipe.required "heading" Dec.string
+        |> Pipe.required "peaks" (Dec.list peakDecoder)
+
+
 flagsDecoder : Dec.Decoder Flags
 flagsDecoder =
-    Dec.map Flags (Dec.list peakDecoder)
+    Dec.list peakListingDecoder |> Dec.andThen initSelectList
+
+
+initSelectList : List PeakListing -> Dec.Decoder Flags
+initSelectList listing =
+    case SelectList.fromList listing of
+        Just selectList ->
+            Dec.succeed selectList
+
+        Nothing ->
+            Dec.fail "Empty list provided"
 
 
 
@@ -77,8 +146,28 @@ flagsDecoder =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update _ model =
-    ( model, Cmd.none )
+update msg model =
+    case msg of
+        HoverOver peak ->
+            ( model, encodePeak peak |> hoverOver )
+
+        HoverOut ->
+            ( model, hoverOut () )
+
+        MapPopupHover peakName ->
+            ( { model | mapPopupHover = Just peakName }, Cmd.none )
+
+        MapPopupHoverOut _ ->
+            ( { model | mapPopupHover = Nothing }, Cmd.none )
+
+
+encodePeak : Peak -> Enc.Value
+encodePeak peak =
+    Enc.object
+        [ ( "longitude", Enc.float peak.lon )
+        , ( "latitude", Enc.float peak.lat )
+        , ( "name", Enc.string peak.name )
+        ]
 
 
 
@@ -86,5 +175,47 @@ update _ model =
 
 
 view : Model -> Html Msg
-view _ =
-    text "hello"
+view model =
+    div [ class "w-9/10 m-5" ]
+        [ div [ class "flex text-center text-xl cursor-pointer" ] <|
+            SelectList.selectedMap renderPeakHeading model.flags
+        , div [ class "h-full" ]
+            [ ol [ class "list-decimal list-inside text-sm cursor-default h-full overflow-y-auto" ] <|
+                List.map (renderPeak model.mapPopupHover) (SelectList.selected model.flags |> .peaks)
+            ]
+        ]
+
+
+renderPeakHeading : SelectList.Position -> SelectList PeakListing -> Html Msg
+renderPeakHeading position list =
+    div [ headingClasses position ]
+        [ SelectList.selected list |> .heading |> text ]
+
+
+headingClasses : SelectList.Position -> Html.Attribute Msg
+headingClasses position =
+    classList
+        [ ( "w-1/4 bg-gray-200 p-2 m-2 rounded-t-lg", True )
+        , ( "bg-gray-200", position /= SelectList.Selected )
+        , ( "bg-blue-200", position == SelectList.Selected )
+        ]
+
+
+renderPeak : Maybe String -> Peak -> Html Msg
+renderPeak maybeMapPopupHover peak =
+    li
+        [ classList [ ( "hover:bg-blue-300", True ), ( "bg-blue-300", mapPopupOnPeak maybeMapPopupHover peak ) ]
+        , HoverOver peak |> onMouseOver
+        , HoverOut |> onMouseOut
+        ]
+        [ text peak.name ]
+
+
+mapPopupOnPeak : Maybe String -> Peak -> Bool
+mapPopupOnPeak maybeMapPopupHover peak =
+    case maybeMapPopupHover of
+        Just peakName ->
+            peakName == peak.name
+
+        Nothing ->
+            False
