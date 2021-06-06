@@ -16,7 +16,8 @@ import Html.Attributes
         )
 import Html.Events
     exposing
-        ( onMouseOut
+        ( onClick
+        , onMouseOut
         , onMouseOver
         )
 import Json.Decode as Dec
@@ -91,6 +92,7 @@ type Msg
     | HoverOut
     | MapPopupHover String
     | MapPopupHoverOut ()
+    | SwitchHeading Flags
 
 
 init : Dec.Value -> ( Model, Cmd Msg )
@@ -160,6 +162,9 @@ update msg model =
         MapPopupHoverOut _ ->
             ( { model | mapPopupHover = Nothing }, Cmd.none )
 
+        SwitchHeading list ->
+            ( { model | flags = list }, Cmd.none )
+
 
 encodePeak : Peak -> Enc.Value
 encodePeak peak =
@@ -188,7 +193,10 @@ view model =
 
 renderPeakHeading : SelectList.Position -> SelectList PeakListing -> Html Msg
 renderPeakHeading position list =
-    div [ headingClasses position ]
+    div
+        [ headingClasses position
+        , SwitchHeading list |> onClick
+        ]
         [ SelectList.selected list |> .heading |> text ]
 
 
@@ -204,7 +212,10 @@ headingClasses position =
 renderPeak : Maybe String -> Peak -> Html Msg
 renderPeak maybeMapPopupHover peak =
     li
-        [ classList [ ( "hover:bg-blue-300", True ), ( "bg-blue-300", mapPopupOnPeak maybeMapPopupHover peak ) ]
+        [ classList
+            [ ( "hover:bg-blue-300", True )
+            , ( "bg-blue-300", mapPopupOnPeak maybeMapPopupHover peak )
+            ]
         , HoverOver peak |> onMouseOver
         , HoverOut |> onMouseOut
         ]
