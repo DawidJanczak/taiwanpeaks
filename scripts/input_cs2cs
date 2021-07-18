@@ -1,0 +1,4 @@
+# Taken from https://gis-tech.blogspot.com/2008/11/quantum-gis_24.html
+# To convert use
+# paste -d, all_peaks.csv <(<all_peaks.csv awk 'BEGIN{FS=","}{print $6" "$7}' | cs2cs +proj=tmerc +towgs84=-752,-358,-179,-.0000011698,.0000018398,.0000009822,.00002329 +lat_0=0 +lon_0=121 +x_0=250000 +y_0=0 +k=0.9999 +ellps=aust_SA +to EPSG:4326 -f "%.9f" | tr "\t" "," | cut -d " " -f 1) > out.csv
+echo 244806.455 2596535.633 | cs2cs +proj=tmerc +towgs84=-752,-358,-179,-.0000011698,.0000018398,.0000009822,.00002329 +lat_0=0 +lon_0=121 +x_0=250000 +y_0=0 +k=0.9999 +ellps=aust_SA +to EPSG:4326 -f "%.9f"
