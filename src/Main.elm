@@ -105,8 +105,11 @@ init encodedFlags =
             , Cmd.none
             )
 
-        Err err ->
-            Dec.errorToString err |> Debug.todo
+        Err _ ->
+            -- TODO fix
+            ( { flags = SelectList.fromLists [] (PeakListing "" []) [], mapPopupHover = Nothing }
+            , Cmd.none
+            )
 
 
 
