@@ -19,7 +19,8 @@ interface Peak {
   name : string
 }
 
-const features : Array<GeoJSON.Feature> = top100Json.peaks[0].peaks.map(({ longitude, latitude, name } : Peak) =>
+const peaks : Array<Peak> = top100Json.peaks[1].peaks
+const features : Array<GeoJSON.Feature> = peaks.map(({ longitude, latitude, name } : Peak) =>
   ({
     type: 'Feature',
     properties: {
@@ -72,6 +73,8 @@ if (elmContainer) {
     })
     map.addLayer({
       id: 'top100',
+      // Switch to symbol for text
+      // type: 'symbol',
       type: 'circle',
       source: 'top100',
       paint: {
@@ -79,7 +82,20 @@ if (elmContainer) {
         'circle-radius': 6,
         'circle-stroke-width': 2,
         'circle-stroke-color': '#ffffff'
-      }
+      },
+      // Disable for symbols
+      // layout: {
+        // 'icon-image': 'marker-15',
+        // 'text-field': '{description}',
+        // 'text-anchor': 'top',
+        // 'text-size': {
+            // "stops": [
+                // [0, 0],
+                // [5, 0],
+                // [6, 13]
+            // ]
+        // }
+      // }
     })
 
     map.on('mousemove', 'top100', (e) => {
