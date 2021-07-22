@@ -2,9 +2,9 @@
 // See all supported options: https://www.snowpack.dev/reference/configuration
 
 /** @type {import("snowpack").SnowpackUserConfig } */
-module.exports = {
+export default {
   mount: {
-    /* ... */
+    src: '/'
   },
   plugins: [
     'snowpack-plugin-elm',
@@ -12,6 +12,7 @@ module.exports = {
     '@snowpack/plugin-typescript'
   ],
   packageOptions: {
+    origin: 'https://cdn.skypack.dev',
     source: 'remote',
     types: true
   },
@@ -19,7 +20,7 @@ module.exports = {
     /* ... */
   },
   buildOptions: {
-    /* ... */
+    bundle: true
   },
-  exclude: ['**/node_modules/**/*', 'todo', '.git/**/*']
+  exclude: ['**/node_modules/**/*', 'todo', '.git/**/*', '.snowpack/**/*']
 };

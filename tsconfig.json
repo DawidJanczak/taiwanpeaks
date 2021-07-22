@@ -7,6 +7,7 @@
     "jsx": "preserve",
     "baseUrl": "./",
     "paths": {
+      "*": [".snowpack/types/*"]
     },
     "noEmit": true,
     "strict": true,
