@@ -1,11 +1,12 @@
-import 'mapbox-gl/dist/mapbox-gl.css'
 import mapboxgl from 'mapbox-gl'
+import 'mapbox-gl/dist/mapbox-gl.css'
 import type GeoJSON from 'geojson'
 import './index.css'
 import { Elm } from './Main.elm'
 import top100Json from './top100.json'
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiZ2F0d2FyZSIsImEiOiJja3Awczk2MXkwM2QyMnVxdndnNTZ6c3oxIn0.VQu5bTCFO05pSuYJzakQWQ'
+
 const map = new mapboxgl.Map({
   bounds: [[121, 21.7], [120, 25.5]],
   center: [120.5, 23.6],
