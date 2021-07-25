@@ -20,7 +20,7 @@ interface Peak {
   name : string
 }
 
-const peaks : Array<Peak> = top100Json.peaks[1].peaks
+const peaks : Array<Peak> = top100Json.peaks[0].peaks
 const features : Array<GeoJSON.Feature> = peaks.map(({ longitude, latitude, name } : Peak) =>
   ({
     type: 'Feature',
@@ -46,22 +46,6 @@ if (elmContainer) {
     popup.setLngLat([peak.longitude, peak.latitude]).setHTML(peak.name).addTo(map)
   })
   app.ports.hoverOut.subscribe(() => popup.remove())
-
-  const highlightClass = 'bg-blue-300'
-
-  const setHighlight = (add : boolean) => (id : string) => {
-    const listing = document.getElementById(id)
-    if (listing) {
-      if (add) {
-        listing.classList.add(highlightClass)
-      } else {
-        listing.classList.remove(highlightClass)
-      }
-    }
-  }
-
-  const addHighlight = setHighlight(true)
-  const removeHighlight = setHighlight(false)
 
   map.addControl(new mapboxgl.NavigationControl());
   map.on('load', () => {
@@ -111,19 +95,13 @@ if (elmContainer) {
           coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360
         }
 
-        const existingElement = popup.getElement()
-        if (existingElement) {
-          removeHighlight(existingElement.innerText)
-        }
         popup.setLngLat(coordinates).setHTML(description).addTo(map)
-        addHighlight(description)
         app.ports.mapPopupHover.send(description)
       }
     })
 
     map.on('mouseleave', 'top100', () => {
       map.getCanvas().style.cursor = ''
-      removeHighlight(popup.getElement().innerText)
       popup.remove()
       app.ports.mapPopupHoverOut.send(null)
     })

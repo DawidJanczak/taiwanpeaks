@@ -138,11 +138,10 @@ flagsDecoder =
 
 initSelectList : List PeakListing -> Dec.Decoder Flags
 initSelectList listing =
-    case SelectList.fromList listing of
-        Just selectList ->
-            Dec.succeed selectList
-
-        Nothing ->
+    case listing of
+        head :: _ ->
+            SelectList.fromLists [] head [] |> Dec.succeed
+        _ ->
             Dec.fail "Empty list provided"
 
 
@@ -206,9 +205,9 @@ renderPeakHeading position list =
 headingClasses : SelectList.Position -> Html.Attribute Msg
 headingClasses position =
     classList
-        [ ( "w-1/4 bg-gray-200 p-2 m-2 rounded-t-lg", True )
+        [ ( "p-2 mb-1 rounded-t-lg flex-1", True )
         , ( "bg-gray-200", position /= SelectList.Selected )
-        , ( "bg-blue-200", position == SelectList.Selected )
+        , ( "bg-blue-300", position == SelectList.Selected )
         ]
 
 
