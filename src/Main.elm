@@ -183,10 +183,10 @@ encodePeak peak =
 
 view : Model -> Html Msg
 view model =
-    div [ class "w-9/10 m-5" ]
+    div [ class "w-9/10 h-full m-5 flex flex-col" ]
         [ div [ class "flex text-center text-xl cursor-pointer" ] <|
             SelectList.selectedMap renderPeakHeading model.flags
-        , div [ class "h-full" ]
+        , div [ class "min-h-0" ]
             [ ol [ class "list-decimal list-inside text-sm cursor-default h-full overflow-y-auto" ] <|
                 List.map (renderPeak model.mapPopupHover) (SelectList.selected model.flags |> .peaks)
             ]

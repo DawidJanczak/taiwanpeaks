@@ -3,5 +3,5 @@
 @tailwind utilities;
 
 [data-elm-hot] {
-  width: 50%;
+  height: 100% !important;
 }
