@@ -25,7 +25,7 @@ const features : Array<GeoJSON.Feature> = peaks.map(({ longitude, latitude, name
   ({
     type: 'Feature',
     properties: {
-      description: name
+      name: name
     },
     geometry: {
       type: 'Point',
@@ -42,10 +42,15 @@ const popup = new mapboxgl.Popup({
 const elmContainer = document.getElementById('elm-container')
 if (elmContainer) {
   const app = Elm.Main.init({ node: elmContainer, flags: top100Json.peaks })
-  app.ports.hoverOver.subscribe((peak : Peak) => {
+  app.ports.peakSelected.subscribe((peak : Peak) => {
+    if (map.getZoom() >= 8) {
+      map.flyTo({
+        center: [peak.longitude, peak.latitude],
+        speed: 0.5
+      })
+    }
     popup.setLngLat([peak.longitude, peak.latitude]).setHTML(peak.name).addTo(map)
   })
-  app.ports.hoverOut.subscribe(() => popup.remove())
 
   map.addControl(new mapboxgl.NavigationControl());
   map.on('load', () => {
@@ -89,14 +94,14 @@ if (elmContainer) {
       if (e.features && e.features[0]) {
         const feature = e.features[0]
         const coordinates = (<GeoJSON.Point>feature.geometry).coordinates.slice() as [number, number]
-        const description = feature.properties?.description
+        const name = feature.properties?.name
 
         while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
           coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360
         }
 
-        popup.setLngLat(coordinates).setHTML(description).addTo(map)
-        app.ports.mapPopupHover.send(description)
+        popup.setLngLat(coordinates).setHTML(name).addTo(map)
+        app.ports.mapPopupHover.send(name)
       }
     })
 
@@ -104,6 +109,14 @@ if (elmContainer) {
       map.getCanvas().style.cursor = ''
       popup.remove()
       app.ports.mapPopupHoverOut.send(null)
+    })
+
+    map.on('click', 'top100', (e) => {
+      if (e.features && e.features[0]) {
+        const feature = e.features[0]
+        const name = feature.properties?.name
+        app.ports.selectPeak.send(name)
+      }
     })
   })
 }

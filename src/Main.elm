@@ -1,6 +1,7 @@
 port module Main exposing (main)
 
 import Browser
+import Browser.Dom as Dom
 import Html
     exposing
         ( Html
@@ -17,8 +18,6 @@ import Html.Attributes
 import Html.Events
     exposing
         ( onClick
-        , onMouseOut
-        , onMouseOver
         )
 import Json.Decode as Dec
 import Json.Decode.Pipeline as Pipe
@@ -30,10 +29,10 @@ import SelectList exposing (SelectList)
 -- Ports
 
 
-port hoverOver : Enc.Value -> Cmd msg
+port peakSelected : Enc.Value -> Cmd msg
 
 
-port hoverOut : () -> Cmd msg
+port selectPeak : (String -> msg) -> Sub msg
 
 
 port mapPopupHover : (String -> msg) -> Sub msg
@@ -61,6 +60,7 @@ subscriptions _ =
     Sub.batch
         [ mapPopupHover MapPopupHover
         , mapPopupHoverOut MapPopupHoverOut
+        , selectPeak SelectPeak
         ]
 
 
@@ -88,8 +88,8 @@ type alias Flags =
 
 
 type Msg
-    = HoverOver Peak
-    | HoverOut
+    = PeakSelected Peak
+    | SelectPeak String
     | MapPopupHover String
     | MapPopupHoverOut ()
     | SwitchHeading Flags
@@ -141,6 +141,7 @@ initSelectList listing =
     case listing of
         head :: _ ->
             SelectList.fromLists [] head [] |> Dec.succeed
+
         _ ->
             Dec.fail "Empty list provided"
 
@@ -152,11 +153,8 @@ initSelectList listing =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        HoverOver peak ->
-            ( model, encodePeak peak |> hoverOver )
-
-        HoverOut ->
-            ( model, hoverOut () )
+        PeakSelected peak ->
+            ( model, encodePeak peak |> peakSelected )
 
         MapPopupHover peakName ->
             ( { model | mapPopupHover = Just peakName }, Cmd.none )
@@ -166,6 +164,9 @@ update msg model =
 
         SwitchHeading list ->
             ( { model | flags = list }, Cmd.none )
+
+        SelectPeak peakName ->
+            ( model, Dom.getElement peakName )
 
 
 encodePeak : Peak -> Enc.Value
@@ -218,8 +219,7 @@ renderPeak maybeMapPopupHover peak =
             [ ( "hover:bg-blue-300", True )
             , ( "bg-blue-300", mapPopupOnPeak maybeMapPopupHover peak )
             ]
-        , HoverOver peak |> onMouseOver
-        , HoverOut |> onMouseOut
+        , PeakSelected peak |> onClick
         ]
         [ text peak.name ]
 
