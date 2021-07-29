@@ -106,39 +106,4 @@ if (elmContainer) {
       app.ports.mapPopupHoverOut.send(null)
     })
   })
-
-
-
-  const replaceClass = (arg : Element, from : string, to : string) => {
-    if (arg instanceof HTMLElement) {
-      arg.classList.remove(from)
-      arg.classList.add(to)
-    }
-  }
-
-  const headings = document.querySelectorAll('.js-listing')
-  for (const tab of headings) {
-    if (tab instanceof HTMLElement) {
-      tab.onclick = () => {
-        headings.forEach((oldTab) => replaceClass(oldTab, 'bg-blue-200', 'bg-gray-200'))
-        replaceClass(tab, 'bg-gray-200', 'bg-blue-200')
-
-        const listingData = tab.dataset.listing
-        if (listingData) {
-          // const listing = document.getElementById(`${listingData}-listing`)
-          // if (listing) {
-          // for (const peak of top100Json.peaks) {
-          // const li = document.createElement('li')
-          // li.classList.add(`hover:${highlightClass}`)
-          // li.id = peak.name
-          // li.append(peak.name)
-          // li.onmouseover = () => popup.setLngLat([peak.longitude, peak.latitude]).setHTML(peak.name).addTo(map)
-          // li.onmouseleave = () => popup.remove()
-          // listing.append(li)
-          // }
-          // }
-        }
-      }
-    }
-  }
 }
