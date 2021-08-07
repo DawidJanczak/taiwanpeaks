@@ -223,12 +223,11 @@ renderPeak maybeMapPopupHover pos peak =
         [ classList
             [ ( "hover:bg-gray-100", not popup )
             , ( "bg-blue-300", popup )
-            , ( "p-1", True )
             ]
         , id peak.name
         , PeakSelected peak |> onClick
         ]
-        [ td [] [ pos + 1 |> String.fromInt |> text ]
+        [ td [ class "p-1" ] [ pos + 1 |> String.fromInt |> text ]
         , td [] [ text peak.name ]
         ]
 
