@@ -24,7 +24,6 @@ import Json.Decode as Dec
 import Json.Decode.Pipeline as Pipe
 import Json.Encode as Enc
 import SelectList exposing (SelectList)
-import Task
 
 
 
@@ -176,7 +175,7 @@ encodePeak peak =
 
 view : Model -> Html Msg
 view model =
-    div [ class "w-9/10 h-full m-5 flex flex-col" ]
+    div [ class "w-9/10 h-full pb-10 pt-5 flex flex-col" ]
         [ div [ class "flex text-center text-xl cursor-pointer" ] <|
             SelectList.selectedMap renderPeakHeading model.flags
         , div [ class "min-h-0" ]
@@ -206,10 +205,15 @@ headingClasses position =
 
 renderPeak : Maybe String -> Peak -> Html Msg
 renderPeak maybeMapPopupHover peak =
+    let
+        popup =
+            mapPopupOnPeak maybeMapPopupHover peak
+    in
     li
         [ classList
-            [ ( "hover:bg-blue-300", True )
-            , ( "bg-blue-300", mapPopupOnPeak maybeMapPopupHover peak )
+            [ ( "hover:bg-gray-100", not popup )
+            , ( "bg-blue-300", popup )
+            , ( "p-1", True )
             ]
         , id peak.name
         , PeakSelected peak |> onClick
