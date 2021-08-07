@@ -10,6 +10,7 @@ import Html
         , tbody
         , td
         , text
+        , th
         , thead
         , tr
         )
@@ -182,11 +183,11 @@ view model =
         [ div [ class "flex text-center text-xl cursor-pointer" ] <|
             SelectList.selectedMap renderPeakHeading model.flags
         , div [ class "min-h-0 overflow-y-auto" ]
-            [ table [ class "border-collapse cursor-default w-full", id "listing" ]
-                [ thead [ class "bg-blue-100" ]
+            [ table [ class "border-collapse cursor-default w-full relative", id "listing" ]
+                [ thead []
                     [ tr []
-                        [ td [] [ text "#" ]
-                        , td [] [ text "Chinese Name" ]
+                        [ th [ class "text-left bg-blue-100 sticky top-0" ] [ text "#" ]
+                        , th [ class "text-left bg-blue-100 sticky top-0" ] [ text "Chinese Name" ]
                         ]
                     ]
                 , tbody [ class "text-sm" ] <| List.indexedMap (renderPeak model.selectedPeak) (SelectList.selected model.flags |> .peaks)
