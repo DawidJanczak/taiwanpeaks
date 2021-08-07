@@ -6,9 +6,12 @@ import Html
     exposing
         ( Html
         , div
-        , li
-        , ol
+        , table
+        , tbody
+        , td
         , text
+        , thead
+        , tr
         )
 import Html.Attributes
     exposing
@@ -175,12 +178,19 @@ encodePeak peak =
 
 view : Model -> Html Msg
 view model =
-    div [ class "w-9/10 h-full pb-10 pt-5 flex flex-col" ]
+    div [ class "w-9/10 h-full py-5 flex flex-col" ]
         [ div [ class "flex text-center text-xl cursor-pointer" ] <|
             SelectList.selectedMap renderPeakHeading model.flags
-        , div [ class "min-h-0" ]
-            [ ol [ class "list-decimal list-inside text-sm cursor-default h-full overflow-y-auto", id "listing" ] <|
-                List.map (renderPeak model.selectedPeak) (SelectList.selected model.flags |> .peaks)
+        , div [ class "min-h-0 overflow-y-auto" ]
+            [ table [ class "border-collapse cursor-default w-full", id "listing" ]
+                [ thead [ class "bg-blue-100" ]
+                    [ tr []
+                        [ td [] [ text "#" ]
+                        , td [] [ text "Chinese Name" ]
+                        ]
+                    ]
+                , tbody [ class "text-sm" ] <| List.indexedMap (renderPeak model.selectedPeak) (SelectList.selected model.flags |> .peaks)
+                ]
             ]
         ]
 
@@ -197,19 +207,19 @@ renderPeakHeading position list =
 headingClasses : SelectList.Position -> Html.Attribute Msg
 headingClasses position =
     classList
-        [ ( "p-2 mb-1 rounded-t-lg flex-1", True )
+        [ ( "p-2 rounded-t-lg flex-1", True )
         , ( "bg-gray-200", position /= SelectList.Selected )
         , ( "bg-blue-300", position == SelectList.Selected )
         ]
 
 
-renderPeak : Maybe String -> Peak -> Html Msg
-renderPeak maybeMapPopupHover peak =
+renderPeak : Maybe String -> Int -> Peak -> Html Msg
+renderPeak maybeMapPopupHover pos peak =
     let
         popup =
             mapPopupOnPeak maybeMapPopupHover peak
     in
-    li
+    tr
         [ classList
             [ ( "hover:bg-gray-100", not popup )
             , ( "bg-blue-300", popup )
@@ -218,7 +228,9 @@ renderPeak maybeMapPopupHover peak =
         , id peak.name
         , PeakSelected peak |> onClick
         ]
-        [ text peak.name ]
+        [ td [] [ pos + 1 |> String.fromInt |> text ]
+        , td [] [ text peak.name ]
+        ]
 
 
 mapPopupOnPeak : Maybe String -> Peak -> Bool
