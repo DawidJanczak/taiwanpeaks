@@ -101,21 +101,19 @@ if (elmContainer) {
         }
 
         popup.setLngLat(coordinates).setHTML(name).addTo(map)
-        app.ports.mapPopupHover.send(name)
       }
     })
 
     map.on('mouseleave', 'top100', () => {
       map.getCanvas().style.cursor = ''
       popup.remove()
-      app.ports.mapPopupHoverOut.send(null)
     })
 
     map.on('click', 'top100', (e) => {
       if (e.features && e.features[0]) {
         const feature = e.features[0]
         const name = feature.properties?.name
-        app.ports.selectPeak.send(name)
+        app.ports.peakSelectedOnMap.send(name)
       }
     })
   })

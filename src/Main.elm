@@ -34,13 +34,7 @@ import Task
 port peakSelected : Enc.Value -> Cmd msg
 
 
-port selectPeak : (String -> msg) -> Sub msg
-
-
-port mapPopupHover : (String -> msg) -> Sub msg
-
-
-port mapPopupHoverOut : (() -> msg) -> Sub msg
+port peakSelectedOnMap : (String -> msg) -> Sub msg
 
 
 
@@ -60,15 +54,13 @@ main =
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
-        [ mapPopupHover MapPopupHover
-        , mapPopupHoverOut MapPopupHoverOut
-        , selectPeak SelectPeak
+        [ peakSelectedOnMap PeakSelectedOnMap
         ]
 
 
 type alias Model =
     { flags : Flags
-    , mapPopupHover : Maybe String
+    , selectedPeak : Maybe String
     }
 
 
@@ -91,11 +83,9 @@ type alias Flags =
 
 type Msg
     = PeakSelected Peak
-    | SelectPeak String
-    | MapPopupHover String
-    | MapPopupHoverOut ()
+    | PeakSelectedOnMap String
     | SwitchHeading Flags
-    | PeakPosition (Result Dom.Error ())
+    | Noop (Result Dom.Error ())
 
 
 init : Dec.Value -> ( Model, Cmd Msg )
@@ -103,14 +93,14 @@ init encodedFlags =
     case Dec.decodeValue flagsDecoder encodedFlags of
         Ok flags ->
             ( { flags = flags
-              , mapPopupHover = Nothing
+              , selectedPeak = Nothing
               }
             , Cmd.none
             )
 
         Err _ ->
             -- TODO fix
-            ( { flags = SelectList.fromLists [] (PeakListing "" []) [], mapPopupHover = Nothing }
+            ( { flags = SelectList.fromLists [] (PeakListing "" []) [], selectedPeak = Nothing }
             , Cmd.none
             )
 
@@ -157,23 +147,17 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         PeakSelected peak ->
-            ( model, encodePeak peak |> peakSelected )
-
-        MapPopupHover peakName ->
-            ( { model | mapPopupHover = Just peakName }, Cmd.none )
-
-        MapPopupHoverOut _ ->
-            ( { model | mapPopupHover = Nothing }, Cmd.none )
+            ( { model | selectedPeak = Just peak.name }, encodePeak peak |> peakSelected )
 
         SwitchHeading list ->
             ( { model | flags = list }, Cmd.none )
 
-        SelectPeak peakName ->
-            ( model
+        PeakSelectedOnMap peakName ->
+            ( { model | selectedPeak = Just peakName }
             , scrollPeakToView peakName
             )
 
-        PeakPosition _ ->
+        Noop _ ->
             ( model, Cmd.none )
 
 
@@ -181,7 +165,7 @@ scrollPeakToView : String -> Cmd Msg
 scrollPeakToView peakName =
     Task.map2 (\el listingPosition -> ( el, listingPosition )) (Dom.getElement peakName) (Dom.getViewportOf "listing")
         |> Task.andThen setViewportOfListing
-        |> Task.attempt PeakPosition
+        |> Task.attempt Noop
 
 
 setViewportOfListing : ( Dom.Element, Dom.Viewport ) -> Task.Task Dom.Error ()
@@ -210,7 +194,7 @@ view model =
             SelectList.selectedMap renderPeakHeading model.flags
         , div [ class "min-h-0" ]
             [ ol [ class "list-decimal list-inside text-sm cursor-default h-full overflow-y-auto", id "listing" ] <|
-                List.map (renderPeak model.mapPopupHover) (SelectList.selected model.flags |> .peaks)
+                List.map (renderPeak model.selectedPeak) (SelectList.selected model.flags |> .peaks)
             ]
         ]
 
