@@ -14,6 +14,7 @@ import Html.Attributes
     exposing
         ( class
         , classList
+        , id
         )
 import Html.Events
     exposing
@@ -23,6 +24,7 @@ import Json.Decode as Dec
 import Json.Decode.Pipeline as Pipe
 import Json.Encode as Enc
 import SelectList exposing (SelectList)
+import Task
 
 
 
@@ -93,6 +95,7 @@ type Msg
     | MapPopupHover String
     | MapPopupHoverOut ()
     | SwitchHeading Flags
+    | PeakPosition (Result Dom.Error ())
 
 
 init : Dec.Value -> ( Model, Cmd Msg )
@@ -166,7 +169,25 @@ update msg model =
             ( { model | flags = list }, Cmd.none )
 
         SelectPeak peakName ->
-            ( model, Dom.getElement peakName )
+            ( model
+            , scrollPeakToView peakName
+            )
+
+        PeakPosition _ ->
+            ( model, Cmd.none )
+
+
+scrollPeakToView : String -> Cmd Msg
+scrollPeakToView peakName =
+    Task.map2 (\el listingPosition -> ( el, listingPosition )) (Dom.getElement peakName) (Dom.getViewportOf "listing")
+        |> Task.andThen setViewportOfListing
+        |> Task.attempt PeakPosition
+
+
+setViewportOfListing : ( Dom.Element, Dom.Viewport ) -> Task.Task Dom.Error ()
+setViewportOfListing ( el, listingPosition ) =
+    -- Add element's y to current viewport's y and divide by half height to center it
+    Dom.setViewportOf "listing" 0 (listingPosition.viewport.y + el.element.y - (listingPosition.viewport.height / 2))
 
 
 encodePeak : Peak -> Enc.Value
@@ -188,7 +209,7 @@ view model =
         [ div [ class "flex text-center text-xl cursor-pointer" ] <|
             SelectList.selectedMap renderPeakHeading model.flags
         , div [ class "min-h-0" ]
-            [ ol [ class "list-decimal list-inside text-sm cursor-default h-full overflow-y-auto" ] <|
+            [ ol [ class "list-decimal list-inside text-sm cursor-default h-full overflow-y-auto", id "listing" ] <|
                 List.map (renderPeak model.mapPopupHover) (SelectList.selected model.flags |> .peaks)
             ]
         ]
@@ -219,6 +240,7 @@ renderPeak maybeMapPopupHover peak =
             [ ( "hover:bg-blue-300", True )
             , ( "bg-blue-300", mapPopupOnPeak maybeMapPopupHover peak )
             ]
+        , id peak.name
         , PeakSelected peak |> onClick
         ]
         [ text peak.name ]
