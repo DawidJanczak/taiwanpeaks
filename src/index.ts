@@ -113,6 +113,10 @@ if (elmContainer) {
       if (e.features && e.features[0]) {
         const feature = e.features[0]
         const name = feature.properties?.name
+        const peak = document.getElementById(name)
+        if (peak) {
+          peak.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
         app.ports.peakSelectedOnMap.send(name)
       }
     })

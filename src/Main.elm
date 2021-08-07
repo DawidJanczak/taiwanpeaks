@@ -154,24 +154,11 @@ update msg model =
 
         PeakSelectedOnMap peakName ->
             ( { model | selectedPeak = Just peakName }
-            , scrollPeakToView peakName
+            , Cmd.none
             )
 
         Noop _ ->
             ( model, Cmd.none )
-
-
-scrollPeakToView : String -> Cmd Msg
-scrollPeakToView peakName =
-    Task.map2 (\el listingPosition -> ( el, listingPosition )) (Dom.getElement peakName) (Dom.getViewportOf "listing")
-        |> Task.andThen setViewportOfListing
-        |> Task.attempt Noop
-
-
-setViewportOfListing : ( Dom.Element, Dom.Viewport ) -> Task.Task Dom.Error ()
-setViewportOfListing ( el, listingPosition ) =
-    -- Add element's y to current viewport's y and divide by half height to center it
-    Dom.setViewportOf "listing" 0 (listingPosition.viewport.y + el.element.y - (listingPosition.viewport.height / 2))
 
 
 encodePeak : Peak -> Enc.Value
