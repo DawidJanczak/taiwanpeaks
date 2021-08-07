@@ -41,7 +41,7 @@ const popup = new mapboxgl.Popup({
 
 const elmContainer = document.getElementById('elm-container')
 if (elmContainer) {
-  const app = Elm.Main.init({ node: elmContainer, flags: top100Json.peaks })
+  const app = Elm.Main.init({ node: elmContainer, flags: [top100Json.peaks[0]] })
   app.ports.peakSelected.subscribe((peak : Peak) => {
     if (map.getZoom() >= 8) {
       map.flyTo({

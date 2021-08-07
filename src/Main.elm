@@ -61,16 +61,27 @@ subscriptions _ =
         ]
 
 
+type SortKind
+    = Id
+
+
 type alias Model =
     { flags : Flags
+    , peaks : PeakListing
     , selectedPeak : Maybe String
+    , currentSort : SortKind
     }
+
+
+type alias Flags =
+    SelectList PeakListing
 
 
 type alias Peak =
     { lat : Float
     , lon : Float
     , name : String
+    , rank : Int
     }
 
 
@@ -80,14 +91,11 @@ type alias PeakListing =
     }
 
 
-type alias Flags =
-    SelectList PeakListing
-
-
 type Msg
     = PeakSelected Peak
     | PeakSelectedOnMap String
     | SwitchHeading Flags
+    | SortBy SortKind
     | Noop (Result Dom.Error ())
 
 
@@ -97,13 +105,19 @@ init encodedFlags =
         Ok flags ->
             ( { flags = flags
               , selectedPeak = Nothing
+              , peaks = SelectList.selected flags
+              , currentSort = Id
               }
             , Cmd.none
             )
 
         Err _ ->
             -- TODO fix
-            ( { flags = SelectList.fromLists [] (PeakListing "" []) [], selectedPeak = Nothing }
+            ( { flags = SelectList.fromLists [] (PeakListing "" []) []
+              , selectedPeak = Nothing
+              , peaks = PeakListing "" []
+              , currentSort = Id
+              }
             , Cmd.none
             )
 
@@ -118,6 +132,7 @@ peakDecoder =
         |> Pipe.required "latitude" Dec.float
         |> Pipe.required "longitude" Dec.float
         |> Pipe.required "name" Dec.string
+        |> Pipe.required "rank" Dec.int
 
 
 peakListingDecoder : Dec.Decoder PeakListing
@@ -160,6 +175,9 @@ update msg model =
             , Cmd.none
             )
 
+        SortBy kind ->
+            ( { model | peaks = sortBy kind model.peaks }, Cmd.none )
+
         Noop _ ->
             ( model, Cmd.none )
 
@@ -171,6 +189,21 @@ encodePeak peak =
         , ( "latitude", Enc.float peak.lat )
         , ( "name", Enc.string peak.name )
         ]
+
+
+sortBy : SortKind -> PeakListing -> PeakListing
+sortBy sortKind peakListing =
+    { peakListing | peaks = updateSortOnListing sortKind peakListing.peaks }
+
+
+updateSortOnListing : SortKind -> List Peak -> List Peak
+updateSortOnListing sortKind peaks =
+    List.sortWith (sortOrder sortKind) peaks
+
+
+sortOrder : SortKind -> Peak -> Peak -> Order
+sortOrder sortKind peakA peakB =
+    Debug.todo "implement"
 
 
 
@@ -186,11 +219,12 @@ view model =
             [ table [ class "border-collapse cursor-default w-full relative", id "listing" ]
                 [ thead []
                     [ tr []
-                        [ th [ class "text-left bg-blue-100 sticky top-0" ] [ text "#" ]
+                        [ th [ class "text-left bg-blue-100 sticky top-0", SortBy Id |> onClick ] [ text "#" ]
                         , th [ class "text-left bg-blue-100 sticky top-0" ] [ text "Chinese Name" ]
                         ]
                     ]
-                , tbody [ class "text-sm" ] <| List.indexedMap (renderPeak model.selectedPeak) (SelectList.selected model.flags |> .peaks)
+                , tbody [ class "text-sm" ] <|
+                    List.map (renderPeak model.selectedPeak) (SelectList.selected model.flags |> .peaks)
                 ]
             ]
         ]
@@ -214,8 +248,8 @@ headingClasses position =
         ]
 
 
-renderPeak : Maybe String -> Int -> Peak -> Html Msg
-renderPeak maybeMapPopupHover pos peak =
+renderPeak : Maybe String -> Peak -> Html Msg
+renderPeak maybeMapPopupHover peak =
     let
         popup =
             mapPopupOnPeak maybeMapPopupHover peak
@@ -228,7 +262,7 @@ renderPeak maybeMapPopupHover pos peak =
         , id peak.name
         , PeakSelected peak |> onClick
         ]
-        [ td [ class "p-1" ] [ pos + 1 |> String.fromInt |> text ]
+        [ td [ class "p-1" ] [ String.fromInt peak.rank |> text ]
         , td [] [ text peak.name ]
         ]
 
