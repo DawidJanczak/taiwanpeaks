@@ -6,6 +6,8 @@ import Html
     exposing
         ( Html
         , div
+        , i
+        , span
         , table
         , tbody
         , td
@@ -259,14 +261,19 @@ view model =
         [ div [ class "flex text-center text-xl cursor-pointer" ] <|
             SelectList.selectedMap renderPeakHeading model.flags
         , div [ class "min-h-0 overflow-y-auto" ]
-            [ table [ class "border-collapse cursor-default w-full relative", id "listing" ]
+            [ table
+                [ class "border-collapse cursor-default w-full relative"
+                , id "listing"
+                ]
                 [ thead []
                     [ tr []
                         [ th
-                            [ class "text-left bg-blue-100 sticky top-0"
+                            [ class "text-left bg-blue-100 sticky top-0 flex items-center space-x-1"
                             , getSortOrder Rank model |> SortBy |> onClick
                             ]
-                            [ text "#" ]
+                            [ span [] [ text "Rank" ]
+                            , renderActiveSort Rank model.currentSort
+                            ]
                         , th [ class "text-left bg-blue-100 sticky top-0" ] [ text "Chinese Name" ]
                         ]
                     ]
@@ -275,6 +282,20 @@ view model =
                 ]
             ]
         ]
+
+
+renderActiveSort : SortColumn -> SortKind -> Html Msg
+renderActiveSort column ( currentSortCol, currentSortOrder ) =
+    if column == currentSortCol then
+        case currentSortOrder of
+            Asc ->
+                i [ class "gg-arrow-up-r bg-blue-200" ] []
+
+            Desc ->
+                i [ class "gg-arrow-down-r bg-blue-200" ] []
+
+    else
+        text ""
 
 
 renderPeakHeading : SelectList.Position -> SelectList PeakListing -> Html Msg
