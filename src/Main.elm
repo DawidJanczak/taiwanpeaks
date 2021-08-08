@@ -74,6 +74,7 @@ type SortOrder
 
 type SortColumn
     = Rank
+    | Elevation
 
 
 type alias Model =
@@ -93,6 +94,7 @@ type alias Peak =
     , lon : Float
     , name : String
     , rank : Int
+    , elevation : Int
     }
 
 
@@ -144,6 +146,7 @@ peakDecoder =
         |> Pipe.required "longitude" Dec.float
         |> Pipe.required "name" Dec.string
         |> Pipe.required "rank" Dec.int
+        |> Pipe.required "ele" Dec.int
 
 
 peakListingDecoder : Dec.Decoder PeakListing
@@ -232,6 +235,9 @@ generateSortOrder sortColumn peakA peakB =
         Rank ->
             compare peakA.rank peakB.rank
 
+        Elevation ->
+            compare peakA.elevation peakB.elevation
+
 
 getSortOrder : SortColumn -> Model -> SortKind
 getSortOrder sortColumn { currentSort } =
@@ -262,19 +268,26 @@ view model =
             SelectList.selectedMap renderPeakHeading model.flags
         , div [ class "min-h-0 overflow-y-auto" ]
             [ table
-                [ class "border-collapse cursor-default w-full relative"
+                [ class "border-collapse cursor-default w-full relative table-fixed"
                 , id "listing"
                 ]
                 [ thead []
-                    [ tr []
+                    [ tr [ class "text-left" ]
                         [ th
-                            [ class "text-left bg-blue-100 sticky top-0 flex items-center space-x-1"
+                            [ class "bg-blue-100 sticky top-0 flex"
                             , getSortOrder Rank model |> SortBy |> onClick
                             ]
                             [ span [] [ text "Rank" ]
                             , renderActiveSort Rank model.currentSort
                             ]
-                        , th [ class "text-left bg-blue-100 sticky top-0" ] [ text "Chinese Name" ]
+                        , th [ class "bg-blue-100 sticky top-0" ] [ text "Chinese Name" ]
+                        , th
+                            [ class "bg-blue-100 sticky top-0 flex"
+                            , getSortOrder Elevation model |> SortBy |> onClick
+                            ]
+                            [ span [] [ text "Elevation" ]
+                            , renderActiveSort Elevation model.currentSort
+                            ]
                         ]
                     ]
                 , tbody [ class "text-sm" ] <|
@@ -289,13 +302,13 @@ renderActiveSort column ( currentSortCol, currentSortOrder ) =
     if column == currentSortCol then
         case currentSortOrder of
             Asc ->
-                i [ class "gg-arrow-up-r bg-blue-200" ] []
+                i [ class "ml-1 gg-arrow-up-r bg-blue-200" ] []
 
             Desc ->
-                i [ class "gg-arrow-down-r bg-blue-200" ] []
+                i [ class "ml-1 gg-arrow-down-r bg-blue-200" ] []
 
     else
-        text ""
+        i [ class "ml-1 gg-arrows-v" ] []
 
 
 renderPeakHeading : SelectList.Position -> SelectList PeakListing -> Html Msg
@@ -332,6 +345,7 @@ renderPeak maybeMapPopupHover peak =
         ]
         [ td [ class "p-1" ] [ String.fromInt peak.rank |> text ]
         , td [] [ text peak.name ]
+        , td [] [ String.fromInt peak.elevation |> text ]
         ]
 
 
