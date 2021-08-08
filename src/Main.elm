@@ -61,13 +61,22 @@ subscriptions _ =
         ]
 
 
-type SortKind
-    = Id
+type alias SortKind =
+    ( SortColumn, SortOrder )
+
+
+type SortOrder
+    = Asc
+    | Desc
+
+
+type SortColumn
+    = Rank
 
 
 type alias Model =
     { flags : Flags
-    , peaks : PeakListing
+    , peakListing : PeakListing
     , selectedPeak : Maybe String
     , currentSort : SortKind
     }
@@ -105,8 +114,8 @@ init encodedFlags =
         Ok flags ->
             ( { flags = flags
               , selectedPeak = Nothing
-              , peaks = SelectList.selected flags
-              , currentSort = Id
+              , peakListing = SelectList.selected flags
+              , currentSort = ( Rank, Asc )
               }
             , Cmd.none
             )
@@ -115,8 +124,8 @@ init encodedFlags =
             -- TODO fix
             ( { flags = SelectList.fromLists [] (PeakListing "" []) []
               , selectedPeak = Nothing
-              , peaks = PeakListing "" []
-              , currentSort = Id
+              , peakListing = PeakListing "" []
+              , currentSort = ( Rank, Asc )
               }
             , Cmd.none
             )
@@ -175,8 +184,13 @@ update msg model =
             , Cmd.none
             )
 
-        SortBy kind ->
-            ( { model | peaks = sortBy kind model.peaks }, Cmd.none )
+        SortBy sortKind ->
+            ( { model
+                | peakListing = sortBy sortKind model.peakListing
+                , currentSort = sortKind
+              }
+            , Cmd.none
+            )
 
         Noop _ ->
             ( model, Cmd.none )
@@ -197,13 +211,42 @@ sortBy sortKind peakListing =
 
 
 updateSortOnListing : SortKind -> List Peak -> List Peak
-updateSortOnListing sortKind peaks =
-    List.sortWith (sortOrder sortKind) peaks
+updateSortOnListing ( sortColumn, sortOrder ) peaks =
+    let
+        sorted =
+            List.sortWith (generateSortOrder sortColumn) peaks
+    in
+    case sortOrder of
+        Asc ->
+            sorted
+
+        Desc ->
+            List.reverse sorted
 
 
-sortOrder : SortKind -> Peak -> Peak -> Order
-sortOrder sortKind peakA peakB =
-    Debug.todo "implement"
+generateSortOrder : SortColumn -> Peak -> Peak -> Order
+generateSortOrder sortColumn peakA peakB =
+    case sortColumn of
+        Rank ->
+            compare peakA.rank peakB.rank
+
+
+getSortOrder : SortColumn -> Model -> SortKind
+getSortOrder sortColumn { currentSort } =
+    let
+        ( currentColumn, currentOrder ) =
+            currentSort
+    in
+    if sortColumn == currentColumn then
+        case currentOrder of
+            Asc ->
+                ( sortColumn, Desc )
+
+            Desc ->
+                ( sortColumn, Asc )
+
+    else
+        ( sortColumn, Asc )
 
 
 
@@ -219,12 +262,16 @@ view model =
             [ table [ class "border-collapse cursor-default w-full relative", id "listing" ]
                 [ thead []
                     [ tr []
-                        [ th [ class "text-left bg-blue-100 sticky top-0", SortBy Id |> onClick ] [ text "#" ]
+                        [ th
+                            [ class "text-left bg-blue-100 sticky top-0"
+                            , getSortOrder Rank model |> SortBy |> onClick
+                            ]
+                            [ text "#" ]
                         , th [ class "text-left bg-blue-100 sticky top-0" ] [ text "Chinese Name" ]
                         ]
                     ]
                 , tbody [ class "text-sm" ] <|
-                    List.map (renderPeak model.selectedPeak) (SelectList.selected model.flags |> .peaks)
+                    List.map (renderPeak model.selectedPeak) model.peakListing.peaks
                 ]
             ]
         ]
