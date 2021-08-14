@@ -1,13 +1,11 @@
-import mapboxgl from 'mapbox-gl'
-import 'mapbox-gl/dist/mapbox-gl.css'
 import type GeoJSON from 'geojson'
 import './index.css'
 import { Elm } from './Main.elm'
 import top100Json from './top100.json'
 
-mapboxgl.accessToken = 'pk.eyJ1IjoiZ2F0d2FyZSIsImEiOiJja3Awczk2MXkwM2QyMnVxdndnNTZ6c3oxIn0.VQu5bTCFO05pSuYJzakQWQ'
+window.mapboxgl.accessToken = 'pk.eyJ1IjoiZ2F0d2FyZSIsImEiOiJja3Awczk2MXkwM2QyMnVxdndnNTZ6c3oxIn0.VQu5bTCFO05pSuYJzakQWQ'
 
-const map = new mapboxgl.Map({
+const map = new window.mapboxgl.Map({
   bounds: [[121, 21.7], [120, 25.5]],
   center: [120.5, 23.6],
   container: 'map',
@@ -34,7 +32,7 @@ const features : Array<GeoJSON.Feature> = peaks.map(({ longitude, latitude, name
   })
 )
 
-const popup = new mapboxgl.Popup({
+const popup = new window.mapboxgl.Popup({
   closeButton: false,
   closeOnClick: false
 })
@@ -52,7 +50,7 @@ if (elmContainer) {
     popup.setLngLat([peak.longitude, peak.latitude]).setHTML(peak.name).addTo(map)
   })
 
-  map.addControl(new mapboxgl.NavigationControl());
+  map.addControl(new window.mapboxgl.NavigationControl());
   map.on('load', () => {
     map.addSource('top100', {
       type: 'geojson',

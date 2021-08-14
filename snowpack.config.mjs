@@ -7,20 +7,22 @@ export default {
     src: '/'
   },
   plugins: [
-    'snowpack-plugin-elm',
     '@snowpack/plugin-postcss',
-    '@snowpack/plugin-typescript'
+    '@snowpack/plugin-typescript',
+    'snowpack-plugin-elm'
   ],
-  packageOptions: {
-    origin: 'https://cdn.skypack.dev',
-    source: 'remote',
-    types: true
-  },
+  packageOptions: {},
   devOptions: {
     /* ... */
   },
   buildOptions: {
     bundle: true
   },
-  exclude: ['**/node_modules/**/*', 'todo', '.git/**/*', '.snowpack/**/*']
+  exclude: ['**/node_modules/**/*', 'todo', '.git/**/*', '.snowpack/**/*'],
+  optimize: {
+    minify: true,
+    bundle: true,
+    treeshake: true,
+    splitting: true
+  }
 };
