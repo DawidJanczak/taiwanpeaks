@@ -11,5 +11,5 @@ build:
 		extension="$${file##*.}"; \
 		new_name="$${base}.$${hash}.$${extension}"; \
 		mv $${file} $${new_name}; \
-		sed -i "s/$${file}/$${new_name}/" index.html; \
+		sed -i -E "s|/?$${file}|$${new_name}|" index.html; \
 	done;
