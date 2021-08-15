@@ -1,7 +1,7 @@
 import type GeoJSON from 'geojson'
 import './index.css'
 import { Elm } from './Main.elm'
-import top100Json from './top100.json'
+import top100Json from './top100'
 
 window.mapboxgl.accessToken = 'pk.eyJ1IjoiZ2F0d2FyZSIsImEiOiJja3Awczk2MXkwM2QyMnVxdndnNTZ6c3oxIn0.VQu5bTCFO05pSuYJzakQWQ'
 
