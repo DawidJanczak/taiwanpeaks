@@ -1,5 +1,9 @@
 {
   "extends": [
     "config:base"
+  ],
+  "lockFileMaintenance": { "enabled": true },
+  "schedule": [
+    "before 5am on Saturday"
   ]
 }
