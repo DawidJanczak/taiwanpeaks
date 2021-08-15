@@ -20,9 +20,9 @@ export default {
   },
   exclude: ['**/node_modules/**/*', 'todo', '.git/**/*', '.snowpack/**/*'],
   optimize: {
-    minify: true,
     bundle: true,
-    treeshake: true,
-    splitting: true
+    minify: true,
+    sourcemap: false,
+    treeshake: true
   }
 };
