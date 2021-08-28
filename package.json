@@ -15,7 +15,7 @@
     "snowpack": "^3.8.2",
     "snowpack-plugin-elm": "^0.4.3",
     "tailwindcss": "^2.2.7",
-    "typescript": "^4.3.5"
+    "typescript": "4.4.2"
   },
   "dependencies": {}
 }
