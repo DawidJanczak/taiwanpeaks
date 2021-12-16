@@ -272,21 +272,25 @@ view model =
                 , id "listing"
                 ]
                 [ thead []
-                    [ tr [ class "text-left" ]
+                    [ tr [ class "text-left sticky top-0" ]
                         [ th
-                            [ class "bg-blue-100 sticky top-0 flex"
+                            [ class "bg-blue-100"
                             , getSortOrder Rank model |> SortBy |> onClick
                             ]
-                            [ span [] [ text "Rank" ]
-                            , renderActiveSort Rank model.currentSort
+                            [ span [ class "flex" ]
+                                [ span [] [ text "Rank" ]
+                                , renderActiveSort Rank model.currentSort
+                                ]
                             ]
-                        , th [ class "bg-blue-100 sticky top-0" ] [ text "Chinese Name" ]
+                        , th [ class "bg-blue-100" ] [ text "Chinese Name" ]
                         , th
-                            [ class "bg-blue-100 sticky top-0 flex"
+                            [ class "bg-blue-100 flex"
                             , getSortOrder Elevation model |> SortBy |> onClick
                             ]
-                            [ span [] [ text "Elevation" ]
-                            , renderActiveSort Elevation model.currentSort
+                            [ span [ class "flex" ]
+                                [ span [] [ text "Elevation" ]
+                                , renderActiveSort Elevation model.currentSort
+                                ]
                             ]
                         ]
                     ]
