@@ -10,7 +10,7 @@
     "@snowpack/plugin-typescript": "1.2.1",
     "@types/mapbox-gl": "2.7.3",
     "postcss": "8.4.14",
-    "postcss-cli": "9.1.0",
+    "postcss-cli": "10.0.0",
     "postcss-import": "14.1.0",
     "snowpack": "3.8.8",
     "snowpack-plugin-elm": "0.5.1",
