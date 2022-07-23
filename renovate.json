@@ -4,6 +4,6 @@
   ],
   "lockFileMaintenance": { "enabled": true },
   "schedule": [
-    "every month before 5am on Saturday"
+    "before 5am on the first day of the month"
   ]
 }
